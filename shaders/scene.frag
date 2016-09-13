@@ -98,10 +98,20 @@ void main()
 	vec2 uv = gl_FragCoord.xy / uResolution.xy;
 
 	//Sort out the aspect ratio so the shapes aren't deformed
-	pos.x *= uResolution.x / uResolution.y;
+	uv.x *= uResolution.x / uResolution.y;
 
-	//Create the ray
-	vec3 r = normalize(vec3(pos, 1.0));
+	vec3 camPos = vec3(uCamPosition.x,uCamPosition.y,uCamPosition.z);
+	vec3 target = camPos+vec3(uCamDir.x,uCamDir.y,uCamDir.z);
+	vec3 camUp  = vec3(uCamUp.x,uCamUp.y,uCamUp.z);
+	
+	// Calculate orthonormal camera reference system
+	vec3 camDir   = normalize(target-camPos); // direction for center ray
+	camUp = normalize(camUp-dot(camDir,camUp)*camDir); // orthogonalize
+	vec3 camRight = normalize(cross(camDir,camUp));
+	
+	
+	// Get direction for this pixel
+	vec3 r = normalize(camDir + (uv.x*camRight + uv.y*camUp)*0.5);
 
 	float the = 90.;
 
