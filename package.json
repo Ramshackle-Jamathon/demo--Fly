@@ -1,7 +1,7 @@
 {
-  "name": "demo--Fly",
+  "name": "demo--Trip",
   "version": "0.0.0",
-  "repository": "github.com:Ramshackle-Jamathon/demo--Fly.git",
+  "repository": "github.com:Ramshackle-Jamathon/demo--Trip.git",
   "author": "Joseph Van Drunen <josephvandrunen@gmail.com>",
   "keywords": [
     "webgl",
@@ -10,7 +10,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "build": "browserify index.js > dist/bundle.js && cp index.html dist/",
+    "build": "browserify index.js | uglifyjs > dist/bundle.js && cp index.html dist/",
     "dev": "budo index.js --open"
   },
   "dependencies": {

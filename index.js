@@ -10,7 +10,7 @@ var stats = new Stats();
 document.body.appendChild( stats.dom );
 
 controls = new flyCamera({
-	movementSpeed: 10,
+	movementSpeed: 5.0,
 	rollSpeed: Math.PI / 3
 });
 controls.start();

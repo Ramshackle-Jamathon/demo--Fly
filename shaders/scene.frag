@@ -9,6 +9,7 @@ uniform vec3 uCamDir;
 uniform vec3 uCamUp;
 
 varying vec2 uv;
+#define FieldOfView 1.0
 
 //-----------------Operation functions--------------------
 
@@ -33,7 +34,7 @@ float opI(float d1, float d2)
 //Changes the colour based on it's distance from the camera
 float opFog(float p)
 {
-	return 1.0 / (1.0 * p * p * 0.25);   
+	return 1.0 / (1.0 * p * p * 0.05);   
 }
 
 //Repeats the primitive across the coordinate space (p = point along ray, c = dimensions of repetition)
@@ -45,22 +46,6 @@ vec3 opRepeat(vec3 p, vec3 c)
 
 //-----------------Distance field functions--------------------
 
-//Distance field function for a sphere (p = point along ray, r = radius of sphere)
-float rSphere(vec3 p, float r)
-{
-	vec3 q = fract(p) * 2.0 - 1.0;
-	
-	return length(q) - r;
-}
-
-//Distance field function for a rounded box (p = point along ray, d = dimensions of box, r = radius of roundness)
-float rRoundedBox(vec3 p, vec3 b, float r)
-{
-	vec3 q = fract(p) * 2.0 - 1.0;
-	
-	return length(max(abs(q)-b,0.0))-r;
-}
-
 //Distance field function for a torus primitive (p = point along ray, t = dimesions of torus (inner radius, outer radius))
 float rTorus(vec3 p, vec2 t)
 {
@@ -69,7 +54,6 @@ float rTorus(vec3 p, vec2 t)
 	vec2 s = vec2(length(q.xz) - t.x,q.y);
 	return length(s)-t.y;
 }
-
 //-----------------Main functions--------------------
 
 //Main tracing function that maps the distances of each pixel
@@ -83,10 +67,10 @@ float trace(vec3 ro, vec3 rt)
 		//Get the point along the ray
 		vec3 p = ro + rt * t;
 
+		float n = abs(sin(uGlobalTime));
+		p.y *= n;
 		//Get the value for the distance field
-		// float d = rSphere(p, (sin(iGlobalTime) + 1.0) * 0.25);
-		// float d = rRoundedBox(p, vec3(0.25,0.1,0.25), 0.1);
-		float d = rTorus(p, vec2(1.0,(sin(uGlobalTime)+ 1.25) * 0.1));
+		float d = rTorus(p, vec2(1.0, -0.1));
 
 		t += d * 0.5;
 	}
@@ -95,11 +79,12 @@ float trace(vec3 ro, vec3 rt)
 
 void main()
 {
-	vec2 uv = gl_FragCoord.xy / uResolution.xy;
 
-	//Sort out the aspect ratio so the shapes aren't deformed
-	uv.x *= uResolution.x / uResolution.y;
+	vec2 coord = uv;
+	coord.x *= uResolution.x / uResolution.y;
 
+
+	// Camera position (eye), and camera target
 	vec3 camPos = vec3(uCamPosition.x,uCamPosition.y,uCamPosition.z);
 	vec3 target = camPos+vec3(uCamDir.x,uCamDir.y,uCamDir.z);
 	vec3 camUp  = vec3(uCamUp.x,uCamUp.y,uCamUp.z);
@@ -111,17 +96,10 @@ void main()
 	
 	
 	// Get direction for this pixel
-	vec3 r = normalize(camDir + (uv.x*camRight + uv.y*camUp)*0.5);
-
-	float the = 90.;
-
-	r.yz *= mat2(cos(the),sin(the),-sin(the),cos(the));
-
-	//Create where the ray is going towards
-	vec3 o = vec3(0.0, uGlobalTime + (sin(uGlobalTime)+1.0),0.0);
+	vec3 rayDir = normalize(camDir + (coord.x*camRight + coord.y*camUp)*FieldOfView);
 
 	//Call the main trace function and get a value
-	float t = trace(o,r);
+	float t = trace(camPos,rayDir);
 
 	//Call the fogging function to apply some depth to the image
 	t = opFog(t);
