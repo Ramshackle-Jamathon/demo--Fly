@@ -10,21 +10,23 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "build": "browserify index.js | uglifyjs > dist/bundle.js && cp index.html dist/",
+    "build": "browserify index.js > dist/bundle.js && cp index.html dist/",
     "dev": "budo index.js --open"
   },
   "dependencies": {
     "gl-buffer": "^2.1.2",
+    "gl-flyCamera": "^1.0.0",
     "gl-matrix": "^2.3.2",
     "gl-shader": "^4.2.0",
-    "gl-flyCamera": "^1.0.0",
     "glslify": "^6.0.1",
     "glslify-hex": "^2.0.1",
+    "keep-rollin": "^0.1.0",
     "stats.js": "^0.17.0"
   },
   "devDependencies": {
-    "browserify": "^13.1.0",
-    "budo": "^9.1.0"
+    "browserify": "^14.1.0",
+    "budo": "^9.1.0",
+    "uglifyjs": "^2.4.11"
   },
   "browserify": {
     "transform": [
